@@ -1,0 +1,204 @@
+---
+layout: post
+title: Bandit level 0x00 to 0x05 - Walkthrough
+date: "2023-04-19 20:21:49 +0000"
+categories: [CTF-WRITEUPS, OverTheWire- Bandit]
+tags: [linux, bandit]
+---
+
+Bandit is a beginner-level wargame hosted by OverTheWire, which is designed to help users learn and practice the basic concepts of Linux command-line and security.
+
+The game consists of a series of levels, each containing a different set of challenges that require the player to use their knowledge of Linux commands and system vulnerabilities to find passwords hidden in files or to gain access to restricted areas.
+
+As the player progresses through the levels, the challenges become increasingly difficult, requiring more advanced techniques and deeper understanding of security concepts.
+
+You can find more information about it [click](https://overthewire.org/wargames/bandit/) :
+
+## Level 0x00
+
+### Level goal
+
+To progress to Level 1, you must successfully log in to the game through SSH.
+More about SSH here : [SSH](https://en.wikipedia.org/wiki/Secure_Shell)
+
+### Level solution
+
+> _Simple enough isn't it ?_
+
+- username : **bandit0**
+- password : **bandit0**
+
+All that's left is to connect, using port <span style="color : #fff">2220</span>
+
+```bash
+ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
+
+![img](/../assets/bandit0.png)
+
+## Level 0x00 --> 0x01
+
+### Level credentials
+
+- username : **<span style="color : #277BE9">bandit0</span>**
+- password : **<span style="color : #277BE9">bandit0</span>**
+
+### Level goal
+
+To progress to the next level, locate the password within the **readme** file in the home directory. Use this password to log in to bandit1 via SSH. After discovering the password for a level, always use SSH on port **2220** to access that level and proceed with the game.
+
+### Level solution
+
+Well, reading the instructions, what we need to do is :
+
+- list all of the files in our current directory
+
+```bash
+ls
+```
+
+- locate a file named **readme** and display its content
+
+```bash
+cat readme
+```
+
+![img](/../assets/bandit1.png)
+
+We got our password :)
+
+> NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
+
+## Level 0x01 --> 0x02
+
+### Level credentials
+
+- username : **<span style="color : #277BE9">bandit1</span>**
+- password : **<span style="color : #277BE9">NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL</span>**
+
+### Level goal
+
+The password for the next level is stored in a file called - located in the home directory
+
+### Level solution
+
+This level is a bit tricky, if you trie `cat -` , it won't work,that's because `-` represents the standard input, e.g `cat` will read the input from your keyboard, and display it to the standard output.
+To read the actual file, we need to provide its path.
+
+```bash
+cat ./-
+```
+
+![img](/../assets/bandit2.png)
+
+We got our password :)
+
+> rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
+
+## Level 0x02 --> 0x03
+
+### Level credentials
+
+- username : **<span style="color : #277BE9">bandit2</span>**
+- password : **<span style="color : #277BE9">rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi</span>**
+
+### Level goal
+
+The password for the next level is stored in a file called spaces in this filename located in the home directory
+
+### Level solution
+
+This level is kind of free, here is a simple methode to solve it:
+
+- Type `cat` followed by s, then hit `tab` in your keyboard.
+  > _You can also type the full name using quotes_
+
+```bash
+cat spaces\ in\ this\ filename
+```
+
+![img](/../assets/bandit3.png)
+
+We got our password :)
+
+> aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
+
+## Level 0x03 --> 0x04
+
+### Level credentials
+
+- username : **<span style="color : #277BE9">bandit3</span>**
+- password : **<span style="color : #277BE9">aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG</span>**
+
+### Level goal
+
+The password for the next level is stored in a hidden file in the inhere directory.
+
+### Level solution
+
+The solution is straightforward :
+
+- change directory to `inhere`
+
+```bash
+cd inhere
+```
+
+- list all of the files , including the hidden ones
+
+```bash
+ls -lhisa
+```
+
+- `cat` the content of the hidden file
+
+```bash
+cat .hidden
+```
+
+![img](/../assets/bandit4.png)
+
+We got our password :)
+
+> 2EW7BBsr6aMMoJ2HjW067dm8EgX26xNe
+
+## Level 0x04 --> 0x05
+
+### Level credentials
+
+- username : **<span style="color : #277BE9">bandit4</span>**
+- password : **<span style="color : #277BE9">2EW7BBsr6aMMoJ2HjW067dm8EgX26xNe</span>**
+
+### Level goal
+
+The password for the next level is stored in the only human-readable file in the inhere directory.
+
+### Level solution
+
+Ok, let's visite the `inhere` directory.
+
+```bash
+cd inhere
+```
+
+Listing the directory's content, we notice 10 files, all starting with `-` in their name.
+We know that our password is stored in a unique human-readable file, we can leverage that by determining the file type of all the files.
+To determine the type of a file, we can use `file <file_name>`
+To determine the type of all files in a directory , we can use the wildcard `*` .
+But remember, all the files start with a hyphon, we need to provide the path of the files as we saw in the previous levels.
+
+```bash
+file ./*
+```
+
+Doing so, we can clearly see that the only distinguishable file is `-file07`.
+
+```bash
+cat ./-file07
+```
+
+![img](/../assets/bandit5.png)
+
+We got our password :)
+
+> lrIWWI6bB37kxfiCQZqUdOIYfr6eEeqR
