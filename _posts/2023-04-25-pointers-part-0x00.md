@@ -263,7 +263,7 @@ And since our pointer is a pointer to `char`, it prints `1 byte` at a time insid
 
 the first byte is 1, then 0, then 0 then 0.
 
-### Trippy 0x03
+### Trippy 0x03 ~ Assignment
 
 Okey for this part, you are going to prove to me that you grasped what we've discussed earlier.
 
