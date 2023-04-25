@@ -95,7 +95,7 @@ ftp> ls
 ftp>
 ```
 
-Okey, there is a file called `note.txt`, let's retrive it.
+Okey, there is a file called `note.txt`, let's retrive it 😃
 
 ```bash
 ftp> get note.txt
