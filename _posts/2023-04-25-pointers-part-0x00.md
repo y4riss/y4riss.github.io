@@ -247,7 +247,7 @@ Now let's rewrite this in hexadecimal.
 
 `0x00000001 <=> 00 00 00 01`
 
-Is the image getting clearer ? let's continue.
+Is the image getting clearer ? let's continue...
 
 You are most likely using an **intel** / **amd** processor.Both those processors use `Little Endian byte order`.
 
