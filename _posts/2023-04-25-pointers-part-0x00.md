@@ -263,38 +263,38 @@ And since our pointer is a pointer to `char`, it prints `1 byte` at a time insid
 
 the first byte is 1, then 0, then 0 then 0.
 
-### Trippy 0x03 ~ Assignment
+### Trippy 0x03 ~ Challenge
 
 Okey for this part, you are going to prove to me that you grasped what we've discussed earlier.
 
-I'm going to give you a simple c program, and you are going to try to predict the output, **WITHOUT EXECUTING THE PROGRAM**.
+<span style="color : #ff5b5b">**Your task is to fill in the array with exactly `one element` to match the output.**</span>
 
 > Note : use a pen ✍🏼 and paper 📄, it's really helpful.
 
 ```c
 #include<stdio.h>
 
-
 int main(void)
 {
 
-        int int_array[5] = { 256 , 2 , 3 , 4};
+        int int_array[1] = {/*put one element here*/};
         char *ptr = (char *) int_array;
 
-        for(int i = 0 ; i < 5 ; i++)
-                printf("%x\n",*(ptr + i));
+        for(int i = 0 ; i < 4 ; i++)
+                printf("%d\n",*(ptr + i));
         return 0;
 }
-// what would the output be ?
 ```
 
-When you are confident enough about your prediction, execute the program and compare your prediction with the output.
+```bash
+#Program stdout
+1
+2
+3
+4
+```
 
-If you are correct, congrats ! You have been transcended.
-
-If not, don't worry, try to understand the output and make sens of it.
-
-The explanation will be in the next article ~ Inshallah.
+The solution will be in the next article ~ Inshallah.
 
 ## Solutions
 
