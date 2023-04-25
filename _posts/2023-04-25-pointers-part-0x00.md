@@ -311,7 +311,6 @@ void swap(int *q, int *p)
   *p = tmp;
 }
 
-
 int main(void)
 {
   //...
