@@ -115,7 +115,7 @@ You used pointers? Excellent JOB 😍.
 
 Have I made my point ? HELL YEAH 😍.
 
-You can find the solution at the end of this article.
+You can find the solution at the end of the article.
 
 ## Pointers - a bit trippy ?
 
