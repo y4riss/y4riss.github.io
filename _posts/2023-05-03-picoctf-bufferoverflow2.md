@@ -210,3 +210,5 @@ We got it, now let's run it against the program in the server.
 └─$ cat payload | nc saturn.picoctf.net
 picoCTF{argum3nt5_4_d4yZ_2a8ec317}
 ```
+
+> Flag : picoCTF{argum3nt5_4_d4yZ_2a8ec317}
