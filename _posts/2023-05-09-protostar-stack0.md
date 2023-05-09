@@ -569,7 +569,7 @@ A NOP sled (No Operation sled) is a technique used in computer security to incre
 
 Here is what our payload would look like :
 
-<img src="/...assets/protostar_stack0_nopsled.png" />
+<img src="/../assets/protostar_stack0_nopsled.png" />
 
 Basically, we will provide enough NOP instructions to ensure that we land there, executing our shellcode.
 
