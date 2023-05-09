@@ -1,6 +1,6 @@
 ---
 layout: post
-title: protostar-stack0
+title: Protostar - stack challenges
 date: '2023-05-09 17:59:45 +0100'
 categories : [CTF-WRITEUPS,Protostar - stack]
 tags : [pwn,ctf,buffer overflow]
