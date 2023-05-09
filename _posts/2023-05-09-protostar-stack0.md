@@ -16,7 +16,7 @@ The Protostar Stack exercises are a series of challenges focused on buffer overf
 
 ## Setting up
 
-Before starting to solve these challenges, we need to set up the machine, here is the link of the `iso` file : [exploit-exercises-protostar-2.iso](exploit-exercises-protostar-2.iso).
+Before starting to solve these challenges, we need to set up the machine, here is the link of the `iso` file : [exploit-exercises-protostar-2.iso](https://github.com/ExploitEducation/Protostar/releases/download/v2.0.0/exploit-exercises-protostar-2.iso).
 
 I'm using VirtualBox as hypervisor, you can use whatever you like :)
 
@@ -565,7 +565,7 @@ How are we then going to solve this problem?
 
 Let me introduce you to the `NOP SLED`.
 
-A NOP sled (No Operation sled) is a technique used in computer security to increase the likelihood that a malicious code or exploit will execute successfully. It involves padding the front of the malicious code with a series of NOP (No Operation) instructions, which are essentially instructions that do nothing.
+A NOP sled (No Operation sled) is a technique used in computer security to increase the likelihood that a malicious code or exploit will execute successfully. It involves padding the front of the malicious code with a series of NOP (No Operation) instructions, which are essentially instructions that do nothing ( thanks chatGPT ).
 
 Here is what our payload would look like :
 
