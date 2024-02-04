@@ -55,6 +55,30 @@ Now if you try to access `[localhost:10000](http://localhost:10000)` , it will w
 
 > One important note, you need `ssh`  enabled on your attacker’s machine.
 
+### Scenario 2
+
+<img src="/../assets/ssh_tun1.png">
+
+Imagine you (machine C) , got some set of credentials, and you want to try them on machine A and B.
+you try them on machine A via `RDP`, and it works fine, you enumerate that machine but you find nothing interesting.
+you try machine B, but `RDP port` is blocked by a firewall, no one can access that port except from machine A.
+
+How can you rdp from machine C to B ?
+You can bind port 3389 of machine B to a port on machine A, let's say `9999`, and RDP from machine C to machine A using port `9999`.
+Once you are in, you will notice that you actually accessed machine B !
+
+You can perform this process by utilizing `socat`
+```bash
+# on machine A
+socat TCP4-LISTEN:9999,fork TCP4:<MACHINE_B_IP>:3389
+```
+
+Now that you successfully bound the ports, you can access machine B via RDP from machine C.
+```bash
+# on attacker's machine (C)
+xfreerdp /v:Machine_A_IP:9999 /u:username /p:password
+```
+
 ### SSH Tunnel vs Reverse SSH Tunnel
 
 SSH Tunnel is straight forward, we will just establish a normal ssh connection, but we specify some binding options.
@@ -64,5 +88,7 @@ Going back to our previous example, we already have the credentials of the victi
 ```bash
 ssh -L 10000:127.0.0.1:10000 victim@IP_OF_VICTIM
 ```
+
+
 
 That was it for this article, I hope you learned something!
